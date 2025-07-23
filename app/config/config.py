@@ -97,6 +97,20 @@ class Settings(BaseSettings):
     CLOUDFLARE_IMGBED_URL: str = ""
     CLOUDFLARE_IMGBED_AUTH_CODE: str = ""
     CLOUDFLARE_IMGBED_UPLOAD_FOLDER: str = ""
+    R2_ACCESS_KEY_ID: str = ""
+    R2_SECRET_ACCESS_KEY: str = ""
+    R2_BUCKET_NAME: str = ""
+    R2_ENDPOINT: str = ""
+    R2_BASE_URL: str = ""
+    R2_UPLOAD_FOLDER: str = ""
+
+    MINIO_ENDPOINT: str = ""
+    MINIO_ACCESS_KEY: str = ""
+    MINIO_SECRET_KEY: str = ""
+    MINIO_BUCKET_NAME: str = ""
+    MINIO_BASE_URL: str = ""
+    MINIO_UPLOAD_FOLDER: str = ""
+    MINIO_SECURE: bool = False
 
     # 流式输出优化器配置
     STREAM_OPTIMIZER_ENABLED: bool = False

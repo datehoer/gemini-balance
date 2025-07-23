@@ -2,6 +2,10 @@ import requests
 from app.domain.image_models import ImageMetadata, ImageUploader, UploadResponse
 from enum import Enum
 from typing import Optional, Any
+import boto3
+import hashlib
+from minio import Minio
+from io import BytesIO
 
 class UploadErrorType(Enum):
     """上传错误类型枚举"""
@@ -257,6 +261,166 @@ class PicGoUploader(ImageUploader):
                 error_type=UploadErrorType.UNKNOWN,
                 original_error=e
             )
+class R2ImgBedUploader(ImageUploader):
+    """R2图床上传器"""
+
+    def __init__(self, access_key: str, secret_key: str, bucket_name: str, endpoint: str, base_url: str = "", upload_folder: str = "images"):
+        """
+        初始化R2图床上传器
+
+        Args:
+            access_key: R2访问密钥
+            secret_key: R2秘密密钥
+            bucket_name: 存储桶名称
+            endpoint: R2服务端点
+        """
+        self.access_key = access_key
+        self.secret_key = secret_key
+        self.bucket_name = bucket_name
+        self.endpoint = endpoint
+        self.base_url = base_url
+        self.upload_folder = upload_folder
+        self.client = boto3.client(
+            's3',
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+            endpoint_url=self.endpoint,
+        )
+
+    def upload(self, file: bytes, filename: str) -> UploadResponse:
+        """
+        上传图片到R2图床
+
+        Args:
+            file: 图片文件二进制数据
+            filename: 文件名
+
+        Returns:
+            UploadResponse: 上传响应对象
+
+        Raises:
+            UploadError: 上传失败时抛出异常
+        """
+        try:
+            # 上传文件到R2
+            file_name = hashlib.md5(filename.encode()).hexdigest() + ".jpeg"
+            self.client.put_object(
+                Bucket=self.bucket_name,
+                Key= f"{self.upload_folder}/{file_name}",
+                Body=file,
+                ContentType='image/jpeg'  # 假设上传的是JPEG图片
+            )
+
+            # 构建文件URL
+            file_url = f"{self.base_url}/{self.upload_folder}/{filename}"
+
+            # 构建图片元数据
+            image_metadata = ImageMetadata(
+                width=0,  # R2不返回宽度
+                height=0,  # R2不返回高度
+                filename=filename,
+                size=len(file),  # 使用文件大小作为元数据
+                url=file_url,
+                delete_url=None  # R2不提供删除URL
+            )
+
+            return UploadResponse(
+                success=True,
+                code="success",
+                message="Upload success",
+                data=image_metadata
+            )
+
+        except Exception as e:
+            raise UploadError(
+                message=f"Upload failed: {str(e)}",
+                error_type=UploadErrorType.UNKNOWN,
+                original_error=e
+            )
+
+class MinioImgBedUploader(ImageUploader):
+    """MinIO图床上传器"""
+
+    def __init__(self, access_key: str, secret_key: str, bucket_name: str, endpoint: str, base_url: str = "", upload_folder: str = "images", secure: bool = False):
+        """
+        初始化MinIO图床上传器
+
+        Args:
+            access_key: MinIO访问密钥
+            secret_key: MinIO秘密密钥
+            bucket_name: 存储桶名称
+            endpoint: MinIO服务端点
+            base_url: 基础URL（可选）
+            upload_folder: 上传文件夹路径（可选）
+        """
+        self.access_key = access_key
+        self.secret_key = secret_key
+        self.bucket_name = bucket_name
+        self.endpoint = endpoint
+        self.base_url = base_url
+        self.upload_folder = upload_folder
+        self.client = Minio(
+            endpoint=self.endpoint,
+            access_key=self.access_key,
+            secret_key=self.secret_key,
+            secure=secure
+        )
+
+    def upload(self, file: bytes, filename: str) -> UploadResponse:
+        """
+        上传图片到MinIO图床
+
+        Args:
+            file: 图片文件二进制数据
+            filename: 文件名
+
+        Returns:
+            UploadResponse: 上传响应对象
+
+        Raises:
+            UploadError: 上传失败时抛出异常
+        """
+        try:
+            # 确保存储桶存在
+            if not self.client.bucket_exists(self.bucket_name):
+                self.client.make_bucket(self.bucket_name)
+
+            # 上传文件到MinIO
+            file_name = hashlib.md5(filename.encode()).hexdigest() + ".jpeg"
+            self.client.put_object(
+                bucket_name=self.bucket_name,
+                object_name=f"{self.upload_folder}/{file_name}",
+                data=BytesIO(file),
+                length=len(file),
+                content_type='image/jpeg'
+            )
+
+            # 构建文件URL
+            file_url = f"{self.base_url}/{self.bucket_name}/{self.upload_folder}/{file_name}"
+
+            # 构建图片元数据
+            image_metadata = ImageMetadata(
+                width=0,  # MinIO不返回宽度
+                height=0,  # MinIO不返回高度
+                filename=filename,
+                size=len(file),  # 使用文件大小作为元数据
+                url=file_url,
+                delete_url=None
+            )
+
+            return UploadResponse(
+                success=True,
+                code="success",
+                message="Upload success",
+                data=image_metadata
+            )
+
+        except Exception as e:
+            raise UploadError(
+                message=f"Upload failed: {str(e)}",
+                error_type=UploadErrorType.UNKNOWN,
+                original_error=e
+            )
 
 
 class CloudFlareImgBedUploader(ImageUploader):
@@ -396,5 +560,24 @@ class ImageUploaderFactory:
                 credentials["auth_code"],
                 credentials["base_url"],
                 credentials.get("upload_folder", ""),
+            )
+        elif provider == "r2":
+            return R2ImgBedUploader(
+                credentials["access_key"],
+                credentials["secret_key"],
+                credentials["bucket_name"],
+                credentials["endpoint"],
+                credentials.get("base_url", ""),
+                credentials.get("upload_folder", "")
+            )
+        elif provider == "minio":
+            return MinioImgBedUploader(
+                credentials["access_key"],
+                credentials["secret_key"],
+                credentials["bucket_name"],
+                credentials["endpoint"],
+                credentials.get("base_url", ""),
+                credentials.get("upload_folder", ""),
+                secure=credentials.get("secure", False)
             )
         raise ValueError(f"Unknown provider: {provider}")

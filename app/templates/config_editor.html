@@ -1784,6 +1784,8 @@ endblock %} {% block head_extra_styles %}
             <option value="smms" selected>SM.MS</option>
             <option value="picgo">PicGo</option>
             <option value="cloudflare_imgbed">Cloudflare</option>
+            <option value="r2">R2</option>
+            <option value="minio">Minio</option>
           </select>
           <small class="text-gray-500 mt-1 block">图片上传服务提供商</small>
         </div>
@@ -1874,8 +1876,221 @@ endblock %} {% block head_extra_styles %}
             >Cloudflare图床的上传文件夹路径（可选）</small
           >
         </div>
-      </div>
 
+        <!-- R2存储桶名称 -->
+        <div class="mb-6 provider-config" data-provider="r2">
+          <label
+            for="R2_BUCKET_NAME"
+            class="block font-semibold mb-2 text-gray-700"
+            >R2存储桶名称</label
+          >
+          <input
+            type="text"
+            id="R2_BUCKET_NAME"
+            name="R2_BUCKET_NAME"
+            placeholder="your-bucket-name"
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">R2存储桶的名称</small>
+        </div>
+        <!-- R2访问密钥 -->
+        <div class="mb-6 provider-config" data-provider="r2">
+          <label
+            for="R2_ACCESS_KEY_ID"
+            class="block font-semibold mb-2 text-gray-700"
+            >R2访问密钥</label
+          >
+          <input
+            type="text"
+            id="R2_ACCESS_KEY_ID"
+            name="R2_ACCESS_KEY_ID"
+            placeholder="your-access-key-id"
+            class="w-full px-4 py-3 rounded-lg sensitive-input form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">R2的访问密钥ID</small>
+        </div>
+        <!-- R2秘密密钥 -->
+        <div class="mb-6 provider-config" data-provider="r2">
+          <label
+            for="R2_SECRET_ACCESS_KEY"
+            class="block font-semibold mb-2 text-gray-700"
+            >R2秘密密钥</label
+          >
+          <input
+            type="text"
+            id="R2_SECRET_ACCESS_KEY"
+            name="R2_SECRET_ACCESS_KEY"
+            placeholder="your-secret-access-key"
+            class="w-full px-4 py-3 rounded-lg sensitive-input form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">R2的秘密访问密钥</small>
+        </div>
+        <!-- R2端点 -->
+        <div class="mb-6 provider-config" data-provider="r2">
+          <label
+            for="R2_ENDPOINT"
+            class="block font-semibold mb-2 text-gray-700"
+            >R2端点</label
+          >
+          <input
+            type="text"
+            id="R2_ENDPOINT"
+            name="R2_ENDPOINT"
+            placeholder="auto"
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">R2端点</small>
+        </div>
+        <!-- R2 域名 -->
+        <div class="mb-6 provider-config" data-provider="r2">
+          <label
+            for="R2_BASE_URL"
+            class="block font-semibold mb-2 text-gray-700"
+            >R2的URL域名</label
+          >
+          <input
+            type="text"
+            id="R2_BASE_URL"
+            name="R2_BASE_URL"
+            placeholder=""
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block"
+            >R2的URL域名</small
+          >
+        </div>
+          <!-- R2 上传文件夹 -->
+        <div class="mb-6 provider-config" data-provider="r2">
+          <label
+            for="R2_UPLOAD_FOLDER"
+            class="block font-semibold mb-2 text-gray-700"
+            >R2 上传文件夹</label
+          >
+          <input
+            type="text"
+            id="R2_UPLOAD_FOLDER"
+            name="R2_UPLOAD_FOLDER"
+            placeholder=""
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block"
+            >R2 上传文件夹</small
+          >
+        </div>
+      </div>
+        <!-- MinIO bucket -->
+        <div class="mb-6 provider-config" data-provider="minio">
+          <label
+            for="MINIO_BUCKET_NAME"
+            class="block font-semibold mb-2 text-gray-700"
+            >MinIO存储桶名称</label
+          >
+          <input
+            type="text"
+            id="MINIO_BUCKET_NAME"
+            name="MINIO_BUCKET_NAME"
+            placeholder="your-bucket-name"
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">MinIO存储桶的名称</small>
+        </div>
+        <!-- MinIO访问密钥 -->
+        <div class="mb-6 provider-config" data-provider="minio">
+          <label
+            for="MINIO_ACCESS_KEY"
+            class="block font-semibold mb-2 text-gray-700"
+            >MinIO访问密钥</label
+          >
+          <input
+            type="text"
+            id="MINIO_ACCESS_KEY"
+            name="MINIO_ACCESS_KEY"
+            placeholder="your-access-key"
+            class="w-full px-4 py-3 rounded-lg sensitive-input form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">MinIO的访问密钥</small>
+        </div>
+        <!-- MinIO秘密密钥 -->
+        <div class="mb-6 provider-config" data-provider="minio">
+          <label
+            for="MINIO_SECRET_KEY"
+            class="block font-semibold mb-2 text-gray-700"
+            >MinIO秘密密钥</label
+          >
+          <input
+            type="text"
+            id="MINIO_SECRET_KEY"
+            name="MINIO_SECRET_KEY"
+            placeholder="your-secret-key"
+            class="w-full px-4 py-3 rounded-lg sensitive-input form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">MinIO的秘密密钥</small>
+        </div>
+        <!-- MinIO端点 -->
+        <div class="mb-6 provider-config" data-provider="minio">
+          <label
+            for="MINIO_ENDPOINT"
+            class="block font-semibold mb-2 text-gray-700"
+            >MinIO端点</label
+          >
+          <input
+            type="text"
+            id="MINIO_ENDPOINT"
+            name="MINIO_ENDPOINT"
+            placeholder="minio.example.com:9000"
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">MinIO端点（不含协议头）</small>
+        </div>
+        <!-- MinIO 域名 -->
+        <div class="mb-6 provider-config" data-provider="minio">
+          <label
+            for="MINIO_BASE_URL"
+            class="block font-semibold mb-2 text-gray-700"
+            >MinIO的URL域名</label
+          >
+          <input
+            type="text"
+            id="MINIO_BASE_URL"
+            name="MINIO_BASE_URL"
+            placeholder="https://cdn.example.com"
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">MinIO的URL域名（含协议头）</small>
+        </div>
+        <!-- MinIO 上传文件夹 -->
+        <div class="mb-6 provider-config" data-provider="minio">
+          <label
+            for="MINIO_UPLOAD_FOLDER"
+            class="block font-semibold mb-2 text-gray-700"
+            >MinIO 上传文件夹</label
+          >
+          <input
+            type="text"
+            id="MINIO_UPLOAD_FOLDER"
+            name="MINIO_UPLOAD_FOLDER"
+            placeholder=""
+            class="w-full px-4 py-3 rounded-lg form-input-themed"
+          />
+          <small class="text-gray-500 mt-1 block">MinIO 上传文件夹</small>
+        </div>
+        <!-- MinIO HTTPS 开关 -->
+        <div class="mb-6 provider-config" data-provider="minio">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              id="MINIO_SECURE"
+              name="MINIO_SECURE"
+              class="mr-2 h-5 w-5 accent-blue-600"
+            />
+            <span class="font-semibold text-gray-700">
+              使用 HTTPS 连接 MinIO
+            </span>
+          </label>
+          <small class="text-gray-500 mt-1 block">
+            启用后将通过 HTTPS 与 MinIO 通信（请确保证书有效）
+          </small>
+        </div>
       <!-- 流式输出优化配置 -->
       <div class="config-section" id="stream-section">
         <h2

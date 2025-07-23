@@ -249,6 +249,31 @@ def _extract_image_data(part: dict) -> str:
             auth_code=settings.CLOUDFLARE_IMGBED_AUTH_CODE,
             upload_folder=settings.CLOUDFLARE_IMGBED_UPLOAD_FOLDER,
         )
+    elif settings.UPLOAD_PROVIDER == "r2":
+        image_uploader = ImageUploaderFactory.create(
+            provider=settings.UPLOAD_PROVIDER,
+            access_key=settings.R2_ACCESS_KEY_ID,
+            secret_key=settings.R2_SECRET_ACCESS_KEY,
+            bucket_name=settings.R2_BUCKET_NAME,
+            endpoint=settings.R2_ENDPOINT,
+            base_url=settings.R2_BASE_URL,
+            upload_folder=settings.R2_UPLOAD_FOLDER,
+        )
+    elif settings.UPLOAD_PROVIDER == "minio":
+        image_uploader = ImageUploaderFactory.create(
+            provider=settings.UPLOAD_PROVIDER,
+            access_key=settings.MINIO_ACCESS_KEY,
+            secret_key=settings.MINIO_SECRET_KEY,
+            bucket_name=settings.MINIO_BUCKET_NAME,
+            endpoint=settings.MINIO_ENDPOINT,
+            base_url=settings.MINIO_BASE_URL,
+            upload_folder=settings.MINIO_UPLOAD_FOLDER,
+            secure=settings.MINIO_SECURE,
+        )
+    else:
+        raise ValueError(
+            f"Unsupported upload provider: {settings.UPLOAD_PROVIDER}"
+        )
     current_date = time.strftime("%Y/%m/%d")
     filename = f"{current_date}/{uuid.uuid4().hex[:8]}.png"
     base64_data = part["inlineData"]["data"]
